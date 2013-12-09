@@ -154,7 +154,7 @@ function searchsortedlast(v::AbstractVector, x, lo::Int, hi::Int, o::Ordering)
 end
 
 # returns the range of indices of v equal to x
-# if v does not contain x, returns a 0-length range 
+# if v does not contain x, returns a 0-length range
 # indicating the insertion point of x
 function searchsorted(v::AbstractVector, x, lo::Int, hi::Int, o::Ordering)
     lo = lo-1
@@ -255,21 +255,40 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, ::InsertionSortAlg, o::Order
 end
 
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering)
-    @inbounds while lo < hi
-        hi-lo <= SMALL_THRESHOLD && return sort!(v, lo, hi, SMALL_ALGORITHM, o)
-        pivot = v[(lo+hi)>>>1]
-        i, j = lo, hi
-        while true
-            while lt(o, v[i], pivot); i += 1; end
-            while lt(o, pivot, v[j]); j -= 1; end
-            i <= j || break
-            v[i], v[j] = v[j], v[i]
-            i += 1; j -= 1
+    @inbounds begin
+        hi <= lo && return;
+        hi-lo <= SMALL_THRESHOLD && return isort(v, lo, hi)
+        mi = (lo+hi)>>>1
+        if v[lo] > v[mi]
+            v[lo], v[mi] = v[mi], v[lo];
         end
-        lo < j && sort!(v, lo, j, a, o)
-        lo = i
+        if v[lo] > v[hi]
+            v[lo], v[hi] = v[hi], v[lo];
+        end
+        if v[mi] > v[hi]
+            v[mi], v[hi] = v[hi], v[mi];
+        end
+        v[mi], v[lo] = v[lo], v[mi]
+        i, j = lo, hi+1;
+        pivot = v[lo]
+        while true;
+            i += 1;
+            while isless(v[i], pivot);
+                i == hi && break;
+                i += 1;
+            end
+            j -= 1;
+            while isless(pivot, v[j]);
+                j -= 1;
+            end
+            i >= j && break;
+            v[i], v[j] = v[j], v[i];
+        end
+        v[j], v[lo] = v[lo], v[j];
+        qsort_c_mp!(v, lo, j-1);
+        qsort_c_mp!(v, j+1, hi);
     end
-    return v
+    return v;
 end
 
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::MergeSortAlg, o::Ordering, t=similar(v))
