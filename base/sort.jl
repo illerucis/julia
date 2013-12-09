@@ -256,39 +256,39 @@ end
 
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering)
     @inbounds begin
-        hi <= lo && return;
+        hi <= lo && return
         hi-lo <= SMALL_THRESHOLD && return isort(v, lo, hi)
         mi = (lo+hi)>>>1
         if v[lo] > v[mi]
-            v[lo], v[mi] = v[mi], v[lo];
+            v[lo], v[mi] = v[mi], v[lo]
         end
         if v[lo] > v[hi]
-            v[lo], v[hi] = v[hi], v[lo];
+            v[lo], v[hi] = v[hi], v[lo]
         end
         if v[mi] > v[hi]
-            v[mi], v[hi] = v[hi], v[mi];
+            v[mi], v[hi] = v[hi], v[mi]
         end
         v[mi], v[lo] = v[lo], v[mi]
-        i, j = lo, hi+1;
+        i, j = lo, hi+1
         pivot = v[lo]
-        while true;
-            i += 1;
-            while isless(v[i], pivot);
-                i == hi && break;
+        while true
+            i += 1
+            while isless(v[i], pivot)
+                i == hi && break
                 i += 1;
             end
             j -= 1;
-            while isless(pivot, v[j]);
-                j -= 1;
+            while isless(pivot, v[j])
+                j -= 1
             end
-            i >= j && break;
-            v[i], v[j] = v[j], v[i];
+            i >= j && break
+            v[i], v[j] = v[j], v[i]
         end
-        v[j], v[lo] = v[lo], v[j];
-        qsort_c_mp!(v, lo, j-1);
-        qsort_c_mp!(v, j+1, hi);
+        v[j], v[lo] = v[lo], v[j]
+        qsort_c_mp!(v, lo, j-1)
+        qsort_c_mp!(v, j+1, hi)
     end
-    return v;
+    return v
 end
 
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::MergeSortAlg, o::Ordering, t=similar(v))
