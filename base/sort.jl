@@ -274,13 +274,9 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
         pivot = v[lo]
         while true
             i += 1
-            while lt(o, v[i], pivot)
-                i += 1
-            end
+            while lt(o, v[i], pivot); i += 1; end;
             j -= 1
-            while lt(o, pivot, v[j])
-                j -= 1
-            end
+            while lt(o, pivot, v[j]); j -= 1; end;
             i >= j && break
             v[i], v[j] = v[j], v[i]
         end
