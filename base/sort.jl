@@ -259,17 +259,15 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
         hi-lo <= SMALL_THRESHOLD && return sort!(v, lo, hi, SMALL_ALGORITHM, o)
         mi = (lo+hi)>>>1
         if lt(o, v[mi], v[lo])
-            v[lo], v[mi] = v[mi], v[lo]
+            v[mi], v[lo] = v[lo], v[mi]
         end
-        if lt(o, v[hi], v[lo])
-            v[lo], v[hi] = v[hi], v[lo]
+        if lt(o, v[hi], v[mi])
+            v[hi], v[mi] = v[mi], v[hi]
         end
-        if lt(o, v[lo], v[mi])
+        if lt(o, v[mi], v[lo])
             v[mi], v[lo] = v[lo], v[mi]
         end
         v[mi], v[lo] = v[lo], v[mi]
-        hival = v[hi]
-        v[hi] = v[lo]
         i, j = lo, hi
         pivot = v[lo]
         while true
@@ -281,7 +279,6 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
             v[i], v[j] = v[j], v[i]
         end
         v[j], v[lo] = v[lo], v[j]
-        v[hi] = hival
         sort!(v, lo, j-1, a, o)
         lo = j+1
     end
