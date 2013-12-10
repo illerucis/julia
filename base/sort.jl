@@ -258,14 +258,14 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
     @inbounds while lo < hi
         hi-lo <= SMALL_THRESHOLD && return sort!(v, lo, hi, SMALL_ALGORITHM, o)
         mi = (lo+hi)>>>1
-        if v[lo] > v[mi]
+        if lt(o, v[mi], v[lo])
             v[lo], v[mi] = v[mi], v[lo]
         end
-        if v[lo] > v[hi]
+        if lt(o, v[hi], v[lo])
             v[lo], v[hi] = v[hi], v[lo]
         end
-        if v[mi] > v[hi]
-            v[mi], v[hi] = v[hi], v[mi]
+        if lt(o, v[lo], v[mi])
+            v[mi], v[lo] = v[lo], v[mi]
         end
         v[mi], v[lo] = v[lo], v[mi]
         hival = v[hi]
@@ -274,9 +274,13 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
         pivot = v[lo]
         while true
             i += 1
-            while lt(o, v[i], pivot); i += 1; end;
-            j -= 1;
-            while lt(o, pivot, v[j]); j -= 1; end;
+            while lt(o, v[i], pivot)
+                i += 1
+            end
+            j -= 1
+            while lt(o, pivot, v[j])
+                j -= 1
+            end
             i >= j && break
             v[i], v[j] = v[j], v[i]
         end
@@ -291,15 +295,18 @@ end
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::MergeSortAlg, o::Ordering, t=similar(v))
     @inbounds if lo < hi
         hi-lo <= SMALL_THRESHOLD && return sort!(v, lo, hi, SMALL_ALGORITHM, o)
+
         m = (lo+hi)>>>1
         sort!(v, lo,  m,  a, o, t)
         sort!(v, m+1, hi, a, o, t)
+
         i, j = 1, lo
         while j <= m
             t[i] = v[j]
             i += 1
             j += 1
         end
+
         i, k = 1, lo
         while k < j <= hi
             if lt(o, v[j], t[i])
@@ -317,6 +324,7 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::MergeSortAlg, o::Ordering
             i += 1
         end
     end
+
     return v
 end
 
