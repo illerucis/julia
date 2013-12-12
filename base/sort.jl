@@ -255,7 +255,7 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, ::InsertionSortAlg, o::Order
 end
 
 function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering)
-    @inbounds while lo < hi
+    while lo < hi
         hi-lo <= SMALL_THRESHOLD && return sort!(v, lo, hi, SMALL_ALGORITHM, o)
         mi = (lo+hi)>>>1
         if lt(o, v[mi], v[lo])
@@ -271,15 +271,14 @@ function sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Ordering
         i, j = lo, hi
         pivot = v[lo]
         while true
-            i += 1
+            i += 1; j -= 1;
             while lt(o, v[i], pivot); i += 1; end;
-            j -= 1
             while lt(o, pivot, v[j]); j -= 1; end;
             i >= j && break
             v[i], v[j] = v[j], v[i]
         end
         v[j], v[lo] = v[lo], v[j]
-        sort!(v, lo, j-1, a, o)
+        lo < (j-1) && sort!(v, lo, j-1, a, o)
         lo = j+1
     end
     return v
